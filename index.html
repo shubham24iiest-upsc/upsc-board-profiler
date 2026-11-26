@@ -191,9 +191,8 @@ footer{border-top:1px solid var(--line);padding-block:20px 40px;font-size:13px;c
 
 <header class="mast">
   <div class="wrap">
-    <a class="brand" href="#prepare"><span class="seal" aria-hidden="true">PT</span><span><b>UPSC Board Profiler</b><small>Personality Test preparation</small></span></a>
+    <a class="brand" href="#boards"><span class="seal" aria-hidden="true">PT</span><span><b>UPSC Board Profiler</b><small>Interview boards and transcripts</small></span></a>
     <nav class="nav" aria-label="Main">
-      <a href="#prepare" data-nav="prepare">Prepare</a>
       <a href="#boards" data-nav="boards">Board library</a>
       <a href="#archive" data-nav="archive">Transcripts</a>
     </nav>
@@ -201,59 +200,6 @@ footer{border-top:1px solid var(--line);padding-block:20px 40px;font-size:13px;c
 </header>
 
 <main class="wrap">
-
-<!-- PREPARE -->
-<section class="view" id="v-prepare" aria-labelledby="h-prep">
-  <div class="stack" style="gap:10px">
-    <p class="eyebrow">Free · No sign-in · Nothing leaves your browser</p>
-    <h1 class="h1" id="h-prep">Enter your DAF details. See the questions boards have been asking.</h1>
-    <p class="lede">Your details are matched against <span class="statN">9,621</span> questions from <span class="statT">2,722</span> real interviews (CSE 2020–2025), grouped by the board that asked them.</p>
-  </div>
-
-  <div class="steps">
-    <form class="panel" id="dafForm" aria-labelledby="h-s1" novalidate>
-      <div class="row" style="justify-content:space-between">
-        <div class="stephead"><span class="num">1</span><h2 class="h2" id="h-s1">Your DAF details</h2></div>
-        <span class="tag ex" id="exTag">Example DAF — replace with yours</span>
-      </div>
-      <p class="small muted">Copy these from your DAF. Separate several items with commas. Leave a box empty if it doesn't apply.</p>
-      <div class="fields" id="fields"></div>
-      <div class="row">
-        <button class="btn primary" type="submit" id="showBtn">Show my questions</button>
-        <button class="btn" type="button" id="clearBtn">Clear all</button>
-        <button class="linkbtn small" type="button" id="exampleBtn">Load the example</button>
-      </div>
-      <p class="tiny muted">Your details stay on this device. They are not uploaded or stored anywhere else.</p>
-    </form>
-
-    <aside class="cta" aria-labelledby="h-how">
-      <h2 class="h2" id="h-how">What you'll see</h2>
-      <p><strong>Questions from your DAF:</strong> for each part of your form, the common questions every board asks, plus real questions asked in CSE 2020–2025 interviews to candidates with similar details.</p>
-      <p><strong>Board-wise:</strong> for each of the nine boards, how its chairperson questions, real opening questions, and what that board asked candidates like you.</p>
-      <p class="tiny">Questions are matched by the words in your DAF, so specific entries (“Kathak”, “Gorakhpur”, “metro rail”) find more than general ones (“dance”, “UP”, “job”).</p>
-    </aside>
-  </div>
-
-  <section id="results" class="stack" style="gap:18px" hidden aria-labelledby="h-res" tabindex="-1">
-    <div class="docbar">
-      <h2 class="h2" id="h-res" style="font-size:28px">Your likely questions</h2>
-      <p class="small muted" id="resSummary"></p>
-    </div>
-    <div class="tabs" role="tablist" aria-label="Question views">
-      <button role="tab" id="tab1" aria-selected="true" aria-controls="doc1">From your DAF <span class="tag" id="c1">0</span></button>
-      <button role="tab" id="tab2" aria-selected="false" aria-controls="doc2">Board-wise <span class="tag">9 boards</span></button>
-    </div>
-    <div id="doc1" role="tabpanel" aria-labelledby="tab1" class="stack" style="gap:16px">
-      <div class="filters" id="srcFilters" aria-label="Filter questions"></div>
-      <div id="doc1body" class="stack" style="gap:16px"></div>
-    </div>
-    <div id="doc2" role="tabpanel" aria-labelledby="tab2" class="stack" style="gap:16px" hidden>
-      <div class="chips" id="doc2chips" aria-label="Board"></div>
-      <div id="doc2body"></div>
-    </div>
-    <p class="tiny muted">These are patterns from past interviews shared by candidates, not a prediction of exactly what any board will ask.</p>
-  </section>
-</section>
 
 <!-- LIBRARY -->
 <section class="view" id="v-boards" hidden aria-labelledby="h-lib">
@@ -305,136 +251,8 @@ const BY = {}; D.boards.forEach(b => { b.slug = slug(b.short); BY[b.id] = b; });
 const TX = {}; D.tx.forEach(t => TX[t[0]] = {id:t[0], b:t[1], d:t[2], k:t[3]});
 const Q = D.q.map(r => ({t:r[0], w:r[1], q:r[2], b:TX[r[0]].b, d:TX[r[0]].d, y:2025}));
 const conf = n => n >= 20 ? ["High confidence","good"] : n >= 8 ? ["Building","warn"] : ["Low confidence","warn"];
-/* ---------- DAF form ---------- */
-const FIELDS = [
-  ["education","Education","e.g. B.Tech Civil Engineering, NIT Allahabad"],
-  ["optional","Optional subject","e.g. Geography"],
-  ["work","Work experience","e.g. Site engineer, Delhi Metro, 2 years"],
-  ["home","Home city / district and state","e.g. Gorakhpur, Uttar Pradesh"],
-  ["hobbies","Hobbies & interests","e.g. Kathak, trekking, reading history"],
-  ["achievements","Achievements & activities","e.g. NCC C certificate, state-level chess"],
-  ["services","Service preferences (in order)","e.g. IAS, IFS, IPS, IRS"],
-  ["extra","Anything else in your DAF","e.g. places lived, languages, volunteering"]];
-const EXAMPLE = {education:"B.Tech Civil Engineering", optional:"Geography", work:"Site engineer on a metro rail project, 2 years", home:"Lucknow, Uttar Pradesh", hobbies:"Trekking, cooking regional food", achievements:"NCC C certificate, college debate captain", services:"IAS, IFS, IPS, IRS", extra:""};
-const STORE = "pt-free-daf";
-let daf = null, isExample = false;
-try { const s = JSON.parse(localStorage.getItem(STORE) || "null"); if (s && typeof s === "object") daf = s; } catch (e) {}
-if (!daf) { daf = {...EXAMPLE}; isExample = true; }
-const saveDaf = () => { try { localStorage.setItem(STORE, JSON.stringify(daf)); } catch (e) {} };
-
-function renderFields(){
-  $("#fields").innerHTML = FIELDS.map(([k,l,ph]) => `<div class="field"><label for="f-${k}">${l}</label><input id="f-${k}" data-k="${k}" value="${esc(daf[k]||"")}" placeholder="${esc(ph)}" autocomplete="off"></div>`).join("");
-  $("#exTag").hidden = !isExample;
-  $("#fields").querySelectorAll("input").forEach(i => i.addEventListener("input", () => {
-    daf[i.dataset.k] = i.value; if (isExample) { isExample = false; $("#exTag").hidden = true; } saveDaf();
-  }));
-}
-$("#clearBtn").addEventListener("click", () => { FIELDS.forEach(([k]) => daf[k] = ""); isExample = false; saveDaf(); renderFields(); $("#results").hidden = true; $("#f-education").focus(); });
-$("#exampleBtn").addEventListener("click", () => { daf = {...EXAMPLE}; isExample = true; try { localStorage.removeItem(STORE); } catch (e) {} renderFields(); });
-
-/* ---------- matching ---------- */
-const STOP = new Set(("the and for with from that this have been were your their about into over under than then also only like such very more most some many other others what which when where why how who whom does did doing done would could should will shall can may might must are was is be been being you yours yourself they them there here these those its it's not but our out off too any all each every both few own same just even ever still yet one two three first last much well good best better make made give tell know think said say says kind way thing things time times year years month months day days work worked working job jobs experience hobby hobbies interest interests reading watching playing state states district city town village degree college university india indian national level member club graduation graduate bachelor master masters science arts studies study student students subject subjects course name names about between people person world country government policy policies role roles important issue issues problem problems example examples difference different service services civil upsc mention explain describe suppose example certificate captain years project projects company tech btech mtech engineer site regional").split(" "));
-const tok = s => (String(s).toLowerCase().match(/[a-z\u0900-\u097f]{3,}/g) || []);
-const DF = new Map();
-function indexQ(list){ list.forEach(o => { o.toks = new Set(tok(o.q)); o.ql = " " + o.q.toLowerCase().replace(/[^a-z0-9\u0900-\u097f]+/g, " ") + " "; o.toks.forEach(w => DF.set(w, (DF.get(w) || 0) + 1)); }); }
-indexQ(Q);
+function indexQ(){}
 let NQ = Q.length;
-const idf = w => Math.log(NQ / ((DF.get(w) || 0) + 1));
-function termsOf(text){
-  const words = [...new Set(tok(text))].filter(w => !STOP.has(w) && (DF.get(w) || 0) > 0 && (DF.get(w) || 0) < NQ * 0.02);
-  const phrases = String(text).toLowerCase().split(/[,;\/()\n]+|\band\b/).map(s => s.replace(/[^a-z0-9\u0900-\u097f ]+/g, " ").replace(/\s+/g, " ").trim()).filter(p => p.includes(" ") && p.length >= 6 && p.length <= 40);
-  return {words, phrases};
-}
-function score(o, T){
-  let s = 0;
-  for (const w of T.words){
-    if (o.toks.has(w)) s += idf(w);
-    else if (w.length >= 5 && o.ql.includes(" " + w)) s += idf(w) * 0.8;
-  }
-  for (const p of T.phrases) if (o.ql.includes(" " + p + " ")) s += 4;
-  return s;
-}
-const tidy = q => String(q).replace(/^\s*q\s*\d+\s*[\).:-]\s*/i, "").replace(/\s*\([^)]{12,}\)\s*/g, " ").replace(/\s+/g, " ").trim();
-const keyOf = q => q.toLowerCase().replace(/[^a-z]+/g, "").slice(0, 60);
-function match(T, pool, n, seen, minScore = 4.2){
-  if (!T.words.length && !T.phrases.length) return [];
-  const out = [];
-  const ranked = pool.map(o => [score(o, T), o]).filter(x => x[0] >= minScore).sort((a, b) => (b[0] + (b[1].y - 2020) * 0.12) - (a[0] + (a[1].y - 2020) * 0.12));
-  for (const [, o] of ranked){ const k = keyOf(o.q); if (seen.has(k)) continue; seen.add(k); out.push(o); if (out.length >= n) break; }
-  return out;
-}
-
-/* ---------- common questions (templates) ---------- */
-const items = v => String(v || "").split(/[,;\n]|\band\b/).map(s => s.trim()).filter(s => s.length > 1).slice(0, 4);
-const AVG = (k) => Math.round(D.boards.reduce((a, b) => a + b[k] * b.n, 0) / D.boards.reduce((a, b) => a + b.n, 0));
-function common(k, v){
-  const it = items(v), first = it[0] || v;
-  switch (k){
-    case "education": return [`Why did you choose ${first}?`, `How will your background in ${first} help you as an administrator?`, `Tell us about one recent development in your field.`, `Why are you leaving your own field for civil services? Isn't that a waste of your training?`, `Which subject from your graduation do you find most useful in daily life?`];
-    case "optional": return [`Why did you choose ${first} as your optional, especially given your graduation subject?`, `How is ${first} useful in administration?`, `Explain a current issue in India through the lens of ${first}.`, `Name a thinker or book in ${first} that influenced you.`];
-    case "work": return [`Describe your role and responsibilities in your job: ${first}.`, `What did you learn about the government or public systems through this work?`, `Why do you want to leave this job for civil services?`, `What was the hardest problem you faced at work, and how did you handle it?`, `How will this experience help you as a district officer?`];
-    case "home": return [`What is ${first} famous for?`, `Name three major problems of ${first}. As District Collector, how would you tackle them?`, `Which government scheme has worked well in ${it[1] || first}, and which has not? Why?`, `Tell us about the history and culture of ${first}.`, `Who are some notable personalities from ${it[1] || first}?`];
-    case "hobbies": return it.flatMap(h => [`How and when did you develop an interest in ${h}?`, `Tell us something about ${h} that most people don't know.`, `How can ${h} be connected to public policy or administration?`]);
-    case "achievements": return it.flatMap(a => [`Tell us about ${a}. What did it teach you?`]).concat([`How will these experiences help you in service?`]);
-    case "services": return [`Why is ${first} your first preference?`, it[1] ? `If you get ${it[1]} instead of ${first}, will you be satisfied?` : `What if you don't get ${first}?`, `What is the difference between the work of ${first} and ${it[1] || "other services"} in a district?`];
-    case "extra": return it.map(x => `Tell us more about ${x}. How does it connect to your interest in public service?`);
-  }
-  return [];
-}
-
-/* ---------- results ---------- */
-let SECTIONS = [], srcFilter = "All", activeBoard = D.boards[0].id;
-const boardShort = id => (BY[id] ? BY[id].short : "");
-function compute(){
-  const seen = new Set();
-  SECTIONS = FIELDS.filter(([k]) => (daf[k] || "").trim()).map(([k, l]) => ({
-    k, title: l, from: daf[k], common: common(k, daf[k]), real: match(termsOf(daf[k]), Q, 12, seen)
-  }));
-  const intro = AVG("intro"), why = AVG("why");
-  SECTIONS.unshift({k:"core", title:"Prepare these whatever your DAF", from:"", common:[`Why do you want to join the civil services?`, `Please introduce yourself.`, `What did you read in the news today?`], real:[], note:`Boards often skip these, but you need a ready answer. In the 2025 transcripts, “why civil services” was asked in about ${why}% of interviews and introductions in about ${intro}%.`});
-}
-function realItem(o){
-  return `<li><span class="qtype">CSE ${o.y} · ${o.w === "Chair" ? "Chair" : "Member"}</span><span class="qt">${esc(tidy(o.q))} <span class="tiny muted">— ${esc(boardLabel(o.b))}${o.b ? " board" : ""}</span></span></li>`;
-}
-function renderDoc1(){
-  const nC = SECTIONS.reduce((a, s) => a + s.common.length, 0), nR = SECTIONS.reduce((a, s) => a + s.real.length, 0);
-  $("#c1").textContent = nC + nR;
-  $("#resSummary").textContent = `${nR} real questions matched from ${PAST_LOADED ? "CSE 2020–2025" : "CSE 2025"} interviews, plus ${nC} common questions for your DAF.${PAST_LOADED ? "" : " Adding questions from CSE 2020–2024…"}`;
-  $("#srcFilters").innerHTML = [["All","All questions"],["Real","Asked in real interviews"],["Common","Common questions"]].map(([v, l]) => `<button type="button" class="chipbtn" aria-pressed="${v === srcFilter}" data-v="${v}">${l}</button>`).join("");
-  $("#srcFilters").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { srcFilter = b.dataset.v; renderDoc1(); }));
-  $("#doc1body").innerHTML = SECTIONS.map(s => {
-    const c = srcFilter !== "Real" ? s.common : [], r = srcFilter !== "Common" ? s.real : [];
-    if (!c.length && !r.length) return "";
-    const none = srcFilter !== "Common" && s.k !== "core" && !s.real.length ? `<p class="tiny muted" style="padding:10px 20px 14px">No close matches in the 2025 transcripts for this entry. Try more specific words.</p>` : "";
-    return `<section class="section"><header><h3 style="font-size:19px">${esc(s.title)}</h3>${s.from ? `<p class="small muted">From your DAF: ${esc(s.from)}</p>` : ""}${s.note ? `<p class="small muted">${esc(s.note)}</p>` : ""}</header>
-      <ol class="qlist">${c.map(q => `<li><span class="qtype">Common</span><span class="qt">${esc(q)}</span></li>`).join("")}${r.map(realItem).join("")}</ol>${none}</section>`;
-  }).join("");
-}
-function renderDoc2(){
-  $("#doc2chips").innerHTML = D.boards.map(b => `<button type="button" class="chipbtn" aria-pressed="${b.id === activeBoard}" data-id="${esc(b.id)}">${esc(b.short)}</button>`).join("");
-  $("#doc2chips").querySelectorAll("button").forEach(btn => btn.addEventListener("click", () => { activeBoard = btn.dataset.id; renderDoc2(); }));
-  const b = BY[activeBoard];
-  const all = FIELDS.map(([k]) => daf[k] || "").join(", ");
-  const pool = Q.filter(o => o.b === b.id);
-  const mine = match(termsOf(all), pool, 15, new Set(), 4.2);
-  const side = `<aside class="side"><p class="eyebrow" style="color:var(--band-hi)">Board style</p><h3 style="font-size:22px">${esc(b.name)}</h3><p>${b.n} transcripts · ${conf(b.n)[0]}</p><p>${esc(b.summary)}</p><ul>${b.style.map(s => `<li>${esc(s)}</li>`).join("")}</ul><a href="#board-${b.slug}" style="color:var(--band-hi);font-weight:600">Full board profile and career</a></aside>`;
-  const openers = `<div class="panel"><h3 style="font-size:17px">How this chairperson opened real interviews</h3><div class="openers">${b.openers.map(o => `<blockquote>${esc(o)}</blockquote>`).join("")}</div></div>`;
-  const matched = mine.length
-    ? `<div class="panel" style="gap:0"><h3 style="font-size:17px;padding-bottom:6px">What this board asked candidates with similar DAFs${PAST_LOADED ? "" : " (loading earlier years…)"} <span class="tag">${mine.length}</span></h3>${mine.map(o => `<div class="qrow"><span class="tag">${o.w === "Chair" ? "Chair" : "Member"}</span><span>${esc(tidy(o.q))}</span><span class="d">CSE ${o.y}${o.d ? " · " + esc(o.d) : ""}</span></div>`).join("")}</div>`
-    : `<div class="notice info">No close matches on this board for your DAF entries. This board most often covered ${b.topics.slice(0, 3).map(t => t[0].toLowerCase()).join(", ")}: prepare those well.</div>`;
-  const topics = `<div class="panel"><h3 style="font-size:17px">Topics this board covered most</h3><div class="bars">${b.topics.slice(0, 6).map(t => `<div class="bar"><div class="lbl"><span>${esc(t[0])}</span><b>${t[1]}%</b></div><div class="track"><div class="fill" style="width:${t[1]}%"></div></div></div>`).join("")}</div></div>`;
-  $("#doc2body").innerHTML = `<div class="bwrap">${side}<div class="stack">${matched}${openers}${topics}</div></div>`;
-}
-function showTab(n){ $("#tab1").setAttribute("aria-selected", n === 1); $("#tab2").setAttribute("aria-selected", n === 2); $("#doc1").hidden = n !== 1; $("#doc2").hidden = n !== 2; }
-$("#tab1").addEventListener("click", () => showTab(1)); $("#tab2").addEventListener("click", () => showTab(2));
-$("#dafForm").addEventListener("submit", e => {
-  e.preventDefault();
-  if (!FIELDS.some(([k]) => (daf[k] || "").trim())) { $("#f-education").focus(); return; }
-  compute(); renderDoc1(); renderDoc2(); $("#results").hidden = false; showTab(1);
-  if (!PAST_LOADED) loadPastQ().then(() => { compute(); renderDoc1(); renderDoc2(); }).catch(() => { $("#resSummary").textContent = "Showing CSE 2025 questions only. Earlier years couldn't be loaded; check your connection and try again."; });
-  $("#results").scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start"});
-});
-
 /* ---------- archive data ---------- */
 const META = JSON.parse(document.getElementById("meta").textContent);   // {year: {board: count}}
 const PAST_Q_COUNT = 50914;
@@ -626,12 +444,12 @@ function renderProfile(b){
 
 /* ---------- routing ---------- */
 function route(){
-  const h = location.hash.slice(1) || "prepare";
+  const h = location.hash.slice(1) || "boards";
   const b = h.startsWith("board-") ? D.boards.find(x => "board-"+x.slug === h) : null;
-  const view = b ? "board" : h === "boards" ? "boards" : h === "archive" ? "archive" : /^t-\d{4}-\d+$/.test(h) ? "tx" : "prepare";
-  ["prepare","boards","board","archive","tx"].forEach(v => $("#v-"+v).hidden = v !== view);
+  const view = b ? "board" : h === "archive" ? "archive" : /^t-\d{4}-\d+$/.test(h) ? "tx" : "boards";
+  ["boards","board","archive","tx"].forEach(v => $("#v-"+v).hidden = v !== view);
   document.querySelectorAll(".nav a").forEach(a => a.toggleAttribute("aria-current", false));
-  const cur = document.querySelector(`.nav a[data-nav="${view==="prepare"?"prepare":(view==="archive"||view==="tx")?"archive":"boards"}"]`); if (cur) cur.setAttribute("aria-current","page");
+  const cur = document.querySelector(`.nav a[data-nav="${(view==="archive"||view==="tx")?"archive":"boards"}"]`); if (cur) cur.setAttribute("aria-current","page");
   if (b){ if (renderProfile.last !== b.id){ profTab = "pattern"; qSearch = ""; qSeat = "All"; qYear = "All years"; qShown = 60; } renderProfile.last = b.id; renderProfile(b); }
   if (view === "archive") renderArchive();
   if (view === "tx") renderReader(h.slice(2));
@@ -641,6 +459,6 @@ window.addEventListener("hashchange", route);
 
 document.querySelectorAll(".statT").forEach(e => e.textContent = TOTAL_TX.toLocaleString("en-IN")); document.querySelectorAll(".statAll").forEach(e => e.textContent = TOTAL_TX.toLocaleString("en-IN")); document.querySelectorAll(".statN").forEach(e => e.textContent = (D.q.length + PAST_Q_COUNT).toLocaleString("en-IN"));
 $("#foot").textContent = "Transcripts shared by candidates and compiled by Team PTT (CSE 2020–2023), Team @csetranscripts (CSE 2024) and the Interview Transcripts (CSPT-2026) Telegram channel (CSE 2025). Membership: " + D.asOf + " Not affiliated with UPSC; board patterns describe past interviews, not official information.";
-renderFields(); renderLibrary(); route();
+renderLibrary(); route();
 </script>
 </body></html>

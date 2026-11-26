@@ -2,7 +2,6 @@
 
 A free, static website for UPSC Civil Services interview (Personality Test) preparation.
 
-- **Prepare:** enter your DAF details to see common questions and real questions asked to candidates with similar DAFs, by DAF area and by board.
 - **Board library:** profiles of the current UPSC interview boards, with each member's career and questioning pattern.
 - **Transcripts:** a searchable archive of about 2,700 interview transcripts from CSE 2020–2025.
 
