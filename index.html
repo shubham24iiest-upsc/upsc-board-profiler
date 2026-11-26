@@ -394,7 +394,7 @@ function renderProfile(b){
   <div class="row" style="gap:20px;align-items:center">${avatar(b,true)}<div class="stack" style="gap:6px">
     <h1 class="h1" id="h-board" style="font-size:clamp(28px,3.6vw,40px)">${esc(b.name)}</h1>
     <div class="row small"><span class="muted">${esc(b.role)}${DOB[b.id] ? " · born " + esc(DOB[b.id]) : ""} · in office since ${esc(b.from_)} · retires ${esc(b.until)}</span></div>
-    <a href="${esc(b.url)}" target="_blank" rel="noopener" class="small" style="font-weight:600">View official UPSC profile and photo ↗</a></div></div>
+    <a href="https://www.upsc.gov.in/about-us/#the-commission" target="_blank" rel="noopener" class="small" style="font-weight:600">View on the UPSC website ↗</a></div></div>
   <div class="subtabs" role="tablist" aria-label="Profile sections">
     <button role="tab" data-t="pattern" aria-selected="${profTab==="pattern"}">Interview pattern</button>
     <button role="tab" data-t="career" aria-selected="${profTab==="career"}">Career profile</button>
@@ -426,7 +426,7 @@ function renderProfile(b){
       <section class="panel"><h2 style="font-size:19px">Service</h2>${facts(b)}<p>${esc(b.service)}</p><h3 style="font-size:16px">Education</h3><ul class="bul">${b.education.map(e => `<li>${esc(e)}</li>`).join("")}</ul></section>
       <section class="panel"><h2 style="font-size:19px">Career</h2><ol class="timeline">${b.career.map(c => `<li>${esc(c)}</li>`).join("")}<li><b>${esc(b.role)}</b> since ${esc(b.from_)}</li></ol></section>
       <section class="panel"><h2 style="font-size:19px">Known for</h2><p>${esc(b.known)}</p><p class="small muted">Why this matters: board members often draw on their own field. Read up on the areas above before your interview.</p>
-        <p class="tiny muted">Sources: ${b.sources.map(s => `<a href="${esc(s[1])}" target="_blank" rel="noopener">${esc(s[0])}</a>`).join(", ")}, and the <a href="${esc(b.url)}" target="_blank" rel="noopener">UPSC profile</a>.</p></section>
+        <p class="tiny muted">Sources: ${b.sources.map(s => `<a href="${esc(s[1])}" target="_blank" rel="noopener">${esc(s[0])}</a>`).join(", ")}, and the <a href="https://www.upsc.gov.in/about-us/#the-commission" target="_blank" rel="noopener">UPSC website</a>.</p></section>
     </div>`;
   } else {
     body.innerHTML = `<div class="search"><label class="sr" for="qs">Search questions</label><input id="qs" type="search" placeholder="Search, e.g. cricket, Bihar, AI" value="${esc(qSearch)}">
